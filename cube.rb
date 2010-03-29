@@ -12,6 +12,25 @@ class Cube
 		@current_pos = 0
 	end
 
+	def get_white_face
+		@white_face
+	end
+	def get_red_face
+		@red_face
+	end
+	def get_blue_face
+		@blue_face
+	end
+	def get_orange_face
+		@orange_face
+	end
+	def get_green_face
+		@green_face
+	end
+	def get_yellow_face
+		@yellow_face
+	end
+
 	def solved?()
 		9.times do |i|
 			unless @white_face[i] == :white
