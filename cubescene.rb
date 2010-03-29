@@ -2,16 +2,26 @@ require 'sdl'
 require 'opengl'
 
 class CubeScene
+	ROT_LEFT  = 0b0001
+	ROT_RIGHT = 0b0010
+	ROT_UP    = 0b0100
+	ROT_DOWN  = 0b1000
+	ROT_STILL = 0b0000
+
 	def initialize(app, cube)
 		@app = app
 		@cube = cube
 
+		@rot_x = 25
+		@rot_y = 25
+		@rot_z = 0
+		@rot_step = 2
+		@rot_delay = 0.01 # in seconds
+		@rot_lasttime = Time.now
+		@rot_direction = 0b0000
+
 		@window_width = 480
 		@window_height = 480
-
-		@rot_x = 25;
-		@rot_y = 25;
-		@rot_z = 0;
 
 		init_SDL
 		init_GL
@@ -61,16 +71,16 @@ class CubeScene
 					@app.quit_app
 				when SDL::Event2::KeyDown
 					case
-						when event.sym == SDL::Key::ESCAPE
-							@app.quit_app
+						# Cube rotation
 						when event.sym == SDL::Key::LEFT
-							@rot_y -= 5
+							@rot_direction |= ROT_LEFT
 						when event.sym == SDL::Key::RIGHT
-							@rot_y += 5
+							@rot_direction |= ROT_RIGHT
 						when event.sym == SDL::Key::UP
-							@rot_x -= 5
+							@rot_direction |= ROT_UP
 						when event.sym == SDL::Key::DOWN
-							@rot_x += 5
+							@rot_direction |= ROT_DOWN
+						# Cube turns
 						when event.sym == SDL::Key::R
 							if event.mod & SDL::Key::MOD_SHIFT == 0
 								@cube.face_rotate(:red,:ccw)
@@ -112,6 +122,29 @@ class CubeScene
 								@cube.scamble
 							end
 					end
+				when SDL::Event2::KeyUp
+					case
+						when event.sym == SDL::Key::ESCAPE then @app.quit_app
+						# Cube rotation
+						when event.sym == SDL::Key::LEFT  then @rot_direction &= ~ROT_LEFT
+						when event.sym == SDL::Key::RIGHT then @rot_direction &= ~ROT_RIGHT
+						when event.sym == SDL::Key::UP    then @rot_direction &= ~ROT_UP
+						when event.sym == SDL::Key::DOWN  then @rot_direction &= ~ROT_DOWN
+					end
+			end
+		end
+	end
+
+	def logic
+		tick = Time.now
+		# cube rotation
+		unless @rot_direction == ROT_STILL
+			if tick - @rot_lasttime >= @rot_delay
+				@rot_lasttime = tick
+				@rot_y += @rot_step if @rot_direction & ROT_LEFT == ROT_LEFT
+				@rot_y -= @rot_step if @rot_direction & ROT_RIGHT == ROT_RIGHT
+				@rot_x += @rot_step if @rot_direction & ROT_UP == ROT_UP
+				@rot_x -= @rot_step if @rot_direction & ROT_DOWN == ROT_DOWN
 			end
 		end
 	end

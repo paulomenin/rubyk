@@ -11,6 +11,7 @@ class Rubyk
 	def run
 		while @app_running
 			@scene.parse_events
+			@scene.logic
 			@scene.draw
 		end
 	end
