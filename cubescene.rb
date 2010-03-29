@@ -20,7 +20,14 @@ class CubeScene
 		@rot_lasttime = Time.now
 		@rot_direction = 0b0000
 
-		@window_width = 480
+		@anim_slice_step = 2
+		@anim_slice_delay = 0.01
+		@anim_slice_lasttime = Time.now
+		@anim_slice = :idle
+		@anim_slice_angle = 0
+		@anim_in_progress = false
+
+		@window_width  = 480
 		@window_height = 480
 
 		init_SDL
@@ -76,40 +83,58 @@ class CubeScene
 						when SDL::Key::DOWN  then @rot_direction |= ROT_DOWN
 						# Cube turns
 						when SDL::Key::R
-							if event.mod & SDL::Key::MOD_SHIFT == 0
-								@cube.face_rotate(:red,:ccw)
-							else
-								@cube.face_rotate(:red,:cw)
+							if @anim_slice == :idle
+								@anim_in_progress = true
+								if event.mod & SDL::Key::MOD_SHIFT == 0
+									@anim_slice = :red_ccw
+								else
+									@anim_slice = :red_cw
+								end
 							end
 						when SDL::Key::W
-							if event.mod & SDL::Key::MOD_SHIFT == 0
-								@cube.face_rotate(:white,:ccw)
-							else
-								@cube.face_rotate(:white,:cw)
+							if @anim_slice == :idle
+								@anim_in_progress = true
+								if event.mod & SDL::Key::MOD_SHIFT == 0
+									@anim_slice = :white_ccw
+								else
+									@anim_slice = :white_cw
+								end
 							end
 						when SDL::Key::G
-							if event.mod & SDL::Key::MOD_SHIFT == 0
-								@cube.face_rotate(:green,:ccw)
-							else
-								@cube.face_rotate(:green,:cw)
+							if @anim_slice == :idle
+								@anim_in_progress = true
+								if event.mod & SDL::Key::MOD_SHIFT == 0
+									@anim_slice = :green_ccw
+								else
+									@anim_slice = :green_cw
+								end
 							end
 						when SDL::Key::B
-							if event.mod & SDL::Key::MOD_SHIFT == 0
-								@cube.face_rotate(:blue,:ccw)
-							else
-								@cube.face_rotate(:blue,:cw)
+							if @anim_slice == :idle
+								@anim_in_progress = true
+								if event.mod & SDL::Key::MOD_SHIFT == 0
+									@anim_slice = :blue_ccw
+								else
+									@anim_slice = :blue_cw
+								end
 							end
 						when SDL::Key::O
-							if event.mod & SDL::Key::MOD_SHIFT == 0
-								@cube.face_rotate(:orange,:ccw)
-							else
-								@cube.face_rotate(:orange,:cw)
+							if @anim_slice == :idle
+								@anim_in_progress = true
+								if event.mod & SDL::Key::MOD_SHIFT == 0
+									@anim_slice = :orange_ccw
+								else
+									@anim_slice = :orange_cw
+								end
 							end
 						when SDL::Key::Y
-							if event.mod & SDL::Key::MOD_SHIFT == 0
-								@cube.face_rotate(:yellow,:ccw)
-							else
-								@cube.face_rotate(:yellow,:cw)
+							if @anim_slice == :idle
+								@anim_in_progress = true
+								if event.mod & SDL::Key::MOD_SHIFT == 0
+									@anim_slice = :yellow_ccw
+								else
+									@anim_slice = :yellow_cw
+								end
 							end
 						when SDL::Key::S
 							@cube.scamble unless event.mod & SDL::Key::MOD_CTRL == 0
@@ -129,6 +154,7 @@ class CubeScene
 
 	def logic
 		tick = Time.now
+
 		# cube rotation
 		unless @rot_direction == ROT_STILL
 			if tick - @rot_lasttime >= @rot_delay
@@ -137,6 +163,47 @@ class CubeScene
 				@rot_y -= @rot_step if @rot_direction & ROT_RIGHT == ROT_RIGHT
 				@rot_x += @rot_step if @rot_direction & ROT_UP == ROT_UP
 				@rot_x -= @rot_step if @rot_direction & ROT_DOWN == ROT_DOWN
+			end
+		end
+
+		# Slice animation
+		unless @anim_slice == :idle
+			if @anim_in_progress
+				if tick - @anim_slice_lasttime >= @anim_slice_delay
+					@anim_slice_lasttime = tick
+					if @anim_slice == :white_ccw  || @anim_slice == :green_ccw  ||
+					   @anim_slice == :red_ccw    || @anim_slice == :blue_ccw   ||
+					   @anim_slice == :orange_ccw || @anim_slice == :yellow_ccw
+						@anim_slice_angle += @anim_slice_step
+					else
+						@anim_slice_angle -= @anim_slice_step
+					end
+					if @anim_slice_angle > 90
+						@anim_slice_angle = 90
+						@anim_in_progress = false
+					elsif @anim_slice_angle < -90
+						@anim_slice_angle = -90
+						@anim_in_progress = false
+					end
+
+				end
+			else
+				case @anim_slice
+					when :white_ccw  then @cube.face_rotate(:white , :ccw)
+					when :white_cw   then @cube.face_rotate(:white , :cw )
+					when :green_ccw  then @cube.face_rotate(:green , :ccw)
+					when :green_cw   then @cube.face_rotate(:green , :cw )
+					when :red_ccw    then @cube.face_rotate(:red   , :ccw)
+					when :red_cw     then @cube.face_rotate(:red   , :cw )
+					when :blue_ccw   then @cube.face_rotate(:blue  , :ccw)
+					when :blue_cw    then @cube.face_rotate(:blue  , :cw )
+					when :orange_ccw then @cube.face_rotate(:orange, :ccw)
+					when :orange_cw  then @cube.face_rotate(:orange, :cw )
+					when :yellow_ccw then @cube.face_rotate(:yellow, :ccw)
+					when :yellow_cw  then @cube.face_rotate(:yellow, :cw )
+				end
+				@anim_slice = :idle
+				@anim_slice_angle = 0
 			end
 		end
 	end
@@ -263,9 +330,88 @@ class CubeScene
 		SDL::GL.swap_buffers
 	end
 
+	def animate_slice(position)
+		case
+			when @anim_slice == :red_cw || @anim_slice == :red_ccw
+				case position
+					when :TLF then glTranslatef( 2.2,-2.2, 0.0); glRotatef(@anim_slice_angle, 0, 0, 1); glTranslatef(-2.2, 2.2, 0.0)
+					when :TMF then glTranslatef( 0.0,-2.2, 0.0); glRotatef(@anim_slice_angle, 0, 0, 1); glTranslatef( 0.0, 2.2, 0.0)
+					when :TRF then glTranslatef(-2.2,-2.2, 0.0); glRotatef(@anim_slice_angle, 0, 0, 1); glTranslatef( 2.2, 2.2, 0.0)
+					when :MLF then glTranslatef( 2.2, 0.0, 0.0); glRotatef(@anim_slice_angle, 0, 0, 1); glTranslatef(-2.2, 0.0, 0.0)
+					when :MMF then glTranslatef( 0.0, 0.0, 0.0); glRotatef(@anim_slice_angle, 0, 0, 1); glTranslatef( 0.0, 0.0, 0.0)
+					when :MRF then glTranslatef(-2.2, 0.0, 0.0); glRotatef(@anim_slice_angle, 0, 0, 1); glTranslatef( 2.2, 0.0, 0.0)
+					when :BLF then glTranslatef( 2.2, 2.2, 0.0); glRotatef(@anim_slice_angle, 0, 0, 1); glTranslatef(-2.2,-2.2, 0.0)
+					when :BMF then glTranslatef( 0.0, 2.2, 0.0); glRotatef(@anim_slice_angle, 0, 0, 1); glTranslatef( 0.0,-2.2, 0.0)
+					when :BRF then glTranslatef(-2.2, 2.2, 0.0); glRotatef(@anim_slice_angle, 0, 0, 1); glTranslatef( 2.2,-2.2, 0.0)
+				end
+			when @anim_slice == :white_cw || @anim_slice == :white_ccw
+				case position
+					when :TLF then glTranslatef( 2.2, 0.0,-2.2); glRotatef(@anim_slice_angle, 0, 1, 0); glTranslatef(-2.2, 0.0, 2.2)
+					when :TLM then glTranslatef( 2.2, 0.0, 0.0); glRotatef(@anim_slice_angle, 0, 1, 0); glTranslatef(-2.2, 0.0, 0.0)
+					when :TLB then glTranslatef( 2.2, 0.0, 2.2); glRotatef(@anim_slice_angle, 0, 1, 0); glTranslatef(-2.2, 0.0,-2.2)
+					when :TMF then glTranslatef( 0.0, 0.0,-2.2); glRotatef(@anim_slice_angle, 0, 1, 0); glTranslatef( 0.0, 0.0, 2.2)
+					when :TMM then glTranslatef( 0.0, 0.0, 0.0); glRotatef(@anim_slice_angle, 0, 1, 0); glTranslatef( 0.0, 0.0, 0.0)
+					when :TMB then glTranslatef( 0.0, 0.0, 2.2); glRotatef(@anim_slice_angle, 0, 1, 0); glTranslatef( 0.0, 0.0,-2.2)
+					when :TRF then glTranslatef(-2.2, 0.0,-2.2); glRotatef(@anim_slice_angle, 0, 1, 0); glTranslatef( 2.2, 0.0, 2.2)
+					when :TRM then glTranslatef(-2.2, 0.0, 0.0); glRotatef(@anim_slice_angle, 0, 1, 0); glTranslatef( 2.2, 0.0, 0.0)
+					when :TRB then glTranslatef(-2.2, 0.0, 2.2); glRotatef(@anim_slice_angle, 0, 1, 0); glTranslatef( 2.2, 0.0,-2.2)
+				end
+			when @anim_slice == :green_cw || @anim_slice == :green_ccw
+				case position
+					when :TLF then glTranslatef( 0.0,-2.2,-2.2); glRotatef(-@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0, 2.2, 2.2)
+					when :TLM then glTranslatef( 0.0,-2.2, 0.0); glRotatef(-@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0, 2.2, 0.0)
+					when :TLB then glTranslatef( 0.0,-2.2, 2.2); glRotatef(-@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0, 2.2,-2.2)
+					when :MLF then glTranslatef( 0.0, 0.0,-2.2); glRotatef(-@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0, 0.0, 2.2)
+					when :MLM then glTranslatef( 0.0, 0.0, 0.0); glRotatef(-@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0, 0.0, 0.0)
+					when :MLB then glTranslatef( 0.0, 0.0, 2.2); glRotatef(-@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0, 0.0,-2.2)
+					when :BLF then glTranslatef( 0.0, 2.2,-2.2); glRotatef(-@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0,-2.2, 2.2)
+					when :BLM then glTranslatef( 0.0, 2.2, 0.0); glRotatef(-@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0,-2.2, 0.0)
+					when :BLB then glTranslatef( 0.0, 2.2, 2.2); glRotatef(-@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0,-2.2,-2.2)
+				end
+			when @anim_slice == :blue_cw || @anim_slice == :blue_ccw
+				case position
+					when :TRF then glTranslatef( 0.0,-2.2,-2.2); glRotatef(@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0, 2.2, 2.2)
+					when :TRM then glTranslatef( 0.0,-2.2, 0.0); glRotatef(@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0, 2.2, 0.0)
+					when :TRB then glTranslatef( 0.0,-2.2, 2.2); glRotatef(@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0, 2.2,-2.2)
+					when :MRF then glTranslatef( 0.0, 0.0,-2.2); glRotatef(@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0, 0.0, 2.2)
+					when :MRM then glTranslatef( 0.0, 0.0, 0.0); glRotatef(@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0, 0.0, 0.0)
+					when :MRB then glTranslatef( 0.0, 0.0, 2.2); glRotatef(@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0, 0.0,-2.2)
+					when :BRF then glTranslatef( 0.0, 2.2,-2.2); glRotatef(@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0,-2.2, 2.2)
+					when :BRM then glTranslatef( 0.0, 2.2, 0.0); glRotatef(@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0,-2.2, 0.0)
+					when :BRB then glTranslatef( 0.0, 2.2, 2.2); glRotatef(@anim_slice_angle, 1, 0, 0); glTranslatef( 0.0,-2.2,-2.2)
+				end
+			when @anim_slice == :yellow_cw || @anim_slice == :yellow_ccw
+				case position
+					when :BLF then glTranslatef( 2.2, 0.0,-2.2); glRotatef(-@anim_slice_angle, 0, 1, 0); glTranslatef(-2.2, 0.0, 2.2)
+					when :BLM then glTranslatef( 2.2, 0.0, 0.0); glRotatef(-@anim_slice_angle, 0, 1, 0); glTranslatef(-2.2, 0.0, 0.0)
+					when :BLB then glTranslatef( 2.2, 0.0, 2.2); glRotatef(-@anim_slice_angle, 0, 1, 0); glTranslatef(-2.2, 0.0,-2.2)
+					when :BMF then glTranslatef( 0.0, 0.0,-2.2); glRotatef(-@anim_slice_angle, 0, 1, 0); glTranslatef( 0.0, 0.0, 2.2)
+					when :BMM then glTranslatef( 0.0, 0.0, 0.0); glRotatef(-@anim_slice_angle, 0, 1, 0); glTranslatef( 0.0, 0.0, 0.0)
+					when :BMB then glTranslatef( 0.0, 0.0, 2.2); glRotatef(-@anim_slice_angle, 0, 1, 0); glTranslatef( 0.0, 0.0,-2.2)
+					when :BRF then glTranslatef(-2.2, 0.0,-2.2); glRotatef(-@anim_slice_angle, 0, 1, 0); glTranslatef( 2.2, 0.0, 2.2)
+					when :BRM then glTranslatef(-2.2, 0.0, 0.0); glRotatef(-@anim_slice_angle, 0, 1, 0); glTranslatef( 2.2, 0.0, 0.0)
+					when :BRB then glTranslatef(-2.2, 0.0, 2.2); glRotatef(-@anim_slice_angle, 0, 1, 0); glTranslatef( 2.2, 0.0,-2.2)
+				end
+			when @anim_slice == :orange_cw || @anim_slice == :orange_ccw
+				case position
+					when :TLB then glTranslatef( 2.2,-2.2, 0.0); glRotatef(-@anim_slice_angle, 0, 0, 1); glTranslatef(-2.2, 2.2, 0.0)
+					when :TMB then glTranslatef( 0.0,-2.2, 0.0); glRotatef(-@anim_slice_angle, 0, 0, 1); glTranslatef( 0.0, 2.2, 0.0)
+					when :TRB then glTranslatef(-2.2,-2.2, 0.0); glRotatef(-@anim_slice_angle, 0, 0, 1); glTranslatef( 2.2, 2.2, 0.0)
+					when :MLB then glTranslatef( 2.2, 0.0, 0.0); glRotatef(-@anim_slice_angle, 0, 0, 1); glTranslatef(-2.2, 0.0, 0.0)
+					when :MMB then glTranslatef( 0.0, 0.0, 0.0); glRotatef(-@anim_slice_angle, 0, 0, 1); glTranslatef( 0.0, 0.0, 0.0)
+					when :MRB then glTranslatef(-2.2, 0.0, 0.0); glRotatef(-@anim_slice_angle, 0, 0, 1); glTranslatef( 2.2, 0.0, 0.0)
+					when :BLB then glTranslatef( 2.2, 2.2, 0.0); glRotatef(-@anim_slice_angle, 0, 0, 1); glTranslatef(-2.2,-2.2, 0.0)
+					when :BMB then glTranslatef( 0.0, 2.2, 0.0); glRotatef(-@anim_slice_angle, 0, 0, 1); glTranslatef( 0.0,-2.2, 0.0)
+					when :BRB then glTranslatef(-2.2, 2.2, 0.0); glRotatef(-@anim_slice_angle, 0, 0, 1); glTranslatef( 2.2,-2.2, 0.0)
+				end
+		end
+	end
+
 	def draw_cube(position)
+		animate_slice(position)
+
 		glBegin(GL_QUADS)
-		
+
 		# Top face
 		decide_face_color(position, :top)
 		glVertex3f( 1.0, 1.0,-1.0)
