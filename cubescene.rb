@@ -27,6 +27,10 @@ class CubeScene
 		@anim_slice_angle = 0
 		@anim_in_progress = false
 
+		@scamble_in_progress = false
+		@scamble_moves = 0
+		@scamble_max_moves = 20
+
 		@window_width  = 480
 		@window_height = 480
 
@@ -137,7 +141,7 @@ class CubeScene
 								end
 							end
 						when SDL::Key::S
-							@cube.scamble unless event.mod & SDL::Key::MOD_CTRL == 0
+							@scamble_in_progress = true unless event.mod & SDL::Key::MOD_CTRL == 0
 					end
 				when SDL::Event2::KeyUp
 					case event.sym
@@ -155,6 +159,32 @@ class CubeScene
 	def logic
 		tick = Time.now
 
+		# scamble
+		if @scamble_in_progress
+			if @anim_slice == :idle
+				@anim_in_progress = true
+				face = rand(12)
+				case face
+					when 0  then @anim_slice = :white_cw
+					when 1  then @anim_slice = :white_ccw
+					when 2  then @anim_slice = :green_cw
+					when 3  then @anim_slice = :green_ccw
+					when 4  then @anim_slice = :red_cw
+					when 5  then @anim_slice = :red_ccw
+					when 6  then @anim_slice = :blue_cw
+					when 7  then @anim_slice = :blue_ccw
+					when 8  then @anim_slice = :orange_cw
+					when 9  then @anim_slice = :orange_ccw
+					when 10 then @anim_slice = :yellow_cw
+					when 11 then @anim_slice = :yellow_ccw
+				end
+				@scamble_moves += 1
+				if @scamble_moves == @scamble_max_moves
+					@scamble_moves = 0
+					@scamble_in_progress = false
+				end
+			end
+		end
 		# cube rotation
 		unless @rot_direction == ROT_STILL
 			if tick - @rot_lasttime >= @rot_delay

@@ -66,13 +66,13 @@ class Cube
 	end
 
 	def representation(color)
-		rep = case
-			when color == :white  then 'W'
-			when color == :blue   then 'B'
-			when color == :orange then 'O'
-			when color == :red    then 'R'
-			when color == :green  then 'G'
-			when color == :yellow then 'Y'
+		rep = case color
+			when :white  then 'W'
+			when :blue   then 'B'
+			when :orange then 'O'
+			when :red    then 'R'
+			when :green  then 'G'
+			when :yellow then 'Y'
 			else '-'
 		end
 	end
@@ -160,13 +160,13 @@ class Cube
 
 	def face_rotate(face, direction, save_history=true)
 		return if @current_pos != @movement_history.length and save_history
-		case
-			when face == :red then rotate_red(direction, save_history)
-			when face == :white then rotate_white(direction, save_history)
-			when face == :green then rotate_green(direction, save_history)
-			when face == :blue then rotate_blue(direction, save_history)
-			when face == :yellow then rotate_yellow(direction, save_history)
-			when face == :orange then rotate_orange(direction, save_history)
+		case face
+			when :red then rotate_red(direction, save_history)
+			when :white then rotate_white(direction, save_history)
+			when :green then rotate_green(direction, save_history)
+			when :blue then rotate_blue(direction, save_history)
+			when :yellow then rotate_yellow(direction, save_history)
+			when :orange then rotate_orange(direction, save_history)
 		end
 		@current_pos += 1 if save_history
 	end
@@ -564,31 +564,31 @@ class Cube
 			else
 				direction = :ccw
 			end
-			case
-				when face == 0 then face_rotate(:white, direction)
-				when face == 1 then face_rotate(:green, direction)
-				when face == 2 then face_rotate(:red, direction)
-				when face == 3 then face_rotate(:blue, direction)
-				when face == 4 then face_rotate(:orange, direction)
-				when face == 5 then face_rotate(:yellow, direction)
+			case face
+				when 0 then face_rotate(:white, direction)
+				when 1 then face_rotate(:green, direction)
+				when 2 then face_rotate(:red, direction)
+				when 3 then face_rotate(:blue, direction)
+				when 4 then face_rotate(:orange, direction)
+				when 5 then face_rotate(:yellow, direction)
 			end
 		end
 	end
 
 	def history_get_move(move)
-		case
-			when @movement_history[move] == 'W' then return :white, :cw
-			when @movement_history[move] == 'w' then return :white, :ccw
-			when @movement_history[move] == 'G' then return :green, :cw
-			when @movement_history[move] == 'g' then return :green, :ccw
-			when @movement_history[move] == 'R' then return :red, :cw
-			when @movement_history[move] == 'r' then return :red, :ccw
-			when @movement_history[move] == 'B' then return :blue, :cw
-			when @movement_history[move] == 'b' then return :blue, :ccw
-			when @movement_history[move] == 'O' then return :orange, :cw
-			when @movement_history[move] == 'o' then return :orange, :ccw
-			when @movement_history[move] == 'Y' then return :yellow, :cw
-			when @movement_history[move] == 'y' then return :yellow, :ccw
+		case @movement_history[move]
+			when 'W' then return :white, :cw
+			when 'w' then return :white, :ccw
+			when 'G' then return :green, :cw
+			when 'g' then return :green, :ccw
+			when 'R' then return :red, :cw
+			when 'r' then return :red, :ccw
+			when 'B' then return :blue, :cw
+			when 'b' then return :blue, :ccw
+			when 'O' then return :orange, :cw
+			when 'o' then return :orange, :ccw
+			when 'Y' then return :yellow, :cw
+			when 'y' then return :yellow, :ccw
 		end
 	end
 
