@@ -1,0 +1,23 @@
+ABOUT
+=====
+
+Rubyk is a Rubic cube simulator written in Ruby with SDL and OpenGL.
+
+KEYBOARD CONTROL
+================
+
+ * Arrow Keys: Rotate the cube
+ * Escape: Exit program
+ * CTRL+S: Scamble cube
+ * W: Rotate white face clockwise
+ * w: Rotate white face counter-clockwise
+ * G: Rotate green face clockwise
+ * g: Rotate green face counter-clockwise
+ * R: Rotate red face clockwise
+ * r: Rotate red face counter-clockwise
+ * B: Rotate blue face clockwise
+ * b: Rotate blue face counter-clockwise
+ * O: Rotate orange face clockwise
+ * o: Rotate orange face counter-clockwise
+ * Y: Rotate yellow face clockwise
+ * y: Rotate yellow face counter-clockwise
