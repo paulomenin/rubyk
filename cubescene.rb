@@ -30,8 +30,6 @@ class CubeScene
 	def init_SDL
 		SDL.init(SDL::INIT_VIDEO)
 
-		SDL::Key.enable_key_repeat(0.2,0.2)
-
 		SDL::GL.set_attr(SDL::GL::RED_SIZE, 5)
 		SDL::GL.set_attr(SDL::GL::GREEN_SIZE, 5)
 		SDL::GL.set_attr(SDL::GL::BLUE_SIZE, 5)
@@ -70,66 +68,60 @@ class CubeScene
 				when SDL::Event2::Quit
 					@app.quit_app
 				when SDL::Event2::KeyDown
-					case
+					case event.sym
 						# Cube rotation
-						when event.sym == SDL::Key::LEFT
-							@rot_direction |= ROT_LEFT
-						when event.sym == SDL::Key::RIGHT
-							@rot_direction |= ROT_RIGHT
-						when event.sym == SDL::Key::UP
-							@rot_direction |= ROT_UP
-						when event.sym == SDL::Key::DOWN
-							@rot_direction |= ROT_DOWN
+						when SDL::Key::LEFT  then @rot_direction |= ROT_LEFT
+						when SDL::Key::RIGHT then @rot_direction |= ROT_RIGHT
+						when SDL::Key::UP    then @rot_direction |= ROT_UP
+						when SDL::Key::DOWN  then @rot_direction |= ROT_DOWN
 						# Cube turns
-						when event.sym == SDL::Key::R
+						when SDL::Key::R
 							if event.mod & SDL::Key::MOD_SHIFT == 0
 								@cube.face_rotate(:red,:ccw)
 							else
 								@cube.face_rotate(:red,:cw)
 							end
-						when event.sym == SDL::Key::W
+						when SDL::Key::W
 							if event.mod & SDL::Key::MOD_SHIFT == 0
 								@cube.face_rotate(:white,:ccw)
 							else
 								@cube.face_rotate(:white,:cw)
 							end
-						when event.sym == SDL::Key::G
+						when SDL::Key::G
 							if event.mod & SDL::Key::MOD_SHIFT == 0
 								@cube.face_rotate(:green,:ccw)
 							else
 								@cube.face_rotate(:green,:cw)
 							end
-						when event.sym == SDL::Key::B
+						when SDL::Key::B
 							if event.mod & SDL::Key::MOD_SHIFT == 0
 								@cube.face_rotate(:blue,:ccw)
 							else
 								@cube.face_rotate(:blue,:cw)
 							end
-						when event.sym == SDL::Key::O
+						when SDL::Key::O
 							if event.mod & SDL::Key::MOD_SHIFT == 0
 								@cube.face_rotate(:orange,:ccw)
 							else
 								@cube.face_rotate(:orange,:cw)
 							end
-						when event.sym == SDL::Key::Y
+						when SDL::Key::Y
 							if event.mod & SDL::Key::MOD_SHIFT == 0
 								@cube.face_rotate(:yellow,:ccw)
 							else
 								@cube.face_rotate(:yellow,:cw)
 							end
-						when event.sym == SDL::Key::S
-							unless event.mod & SDL::Key::MOD_CTRL == 0
-								@cube.scamble
-							end
+						when SDL::Key::S
+							@cube.scamble unless event.mod & SDL::Key::MOD_CTRL == 0
 					end
 				when SDL::Event2::KeyUp
-					case
-						when event.sym == SDL::Key::ESCAPE then @app.quit_app
+					case event.sym
+						when SDL::Key::ESCAPE then @app.quit_app
 						# Cube rotation
-						when event.sym == SDL::Key::LEFT  then @rot_direction &= ~ROT_LEFT
-						when event.sym == SDL::Key::RIGHT then @rot_direction &= ~ROT_RIGHT
-						when event.sym == SDL::Key::UP    then @rot_direction &= ~ROT_UP
-						when event.sym == SDL::Key::DOWN  then @rot_direction &= ~ROT_DOWN
+						when SDL::Key::LEFT  then @rot_direction &= ~ROT_LEFT
+						when SDL::Key::RIGHT then @rot_direction &= ~ROT_RIGHT
+						when SDL::Key::UP    then @rot_direction &= ~ROT_UP
+						when SDL::Key::DOWN  then @rot_direction &= ~ROT_DOWN
 					end
 			end
 		end
@@ -320,264 +312,264 @@ class CubeScene
 	end
 
 	def decide_face_color(position, face)
-		case
+		case position
 			# Top Layer
-			when position == :TLB then
-				case
-					when face == :top    then pick_color(@cube.get_white_face[0])
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(@cube.get_green_face[0])
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(@cube.get_orange_face[2])
+			when :TLB
+				case face
+					when :top    then pick_color(@cube.get_white_face[0])
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(@cube.get_green_face[0])
+					when :right  then pick_color(:black)
+					when :front  then pick_color(:black)
+					when :back   then pick_color(@cube.get_orange_face[2])
 				end
-			when position == :TLM then
-				case
-					when face == :top    then pick_color(@cube.get_white_face[3])
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(@cube.get_green_face[1])
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(:black)
+			when :TLM
+				case face
+					when :top    then pick_color(@cube.get_white_face[3])
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(@cube.get_green_face[1])
+					when :right  then pick_color(:black)
+					when :front  then pick_color(:black)
+					when :back   then pick_color(:black)
 				end
-			when position == :TLF then
-				case
-					when face == :top    then pick_color(@cube.get_white_face[6])
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(@cube.get_green_face[2])
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(@cube.get_red_face[0])
-					when face == :back   then pick_color(:black)
+			when :TLF
+				case face
+					when :top    then pick_color(@cube.get_white_face[6])
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(@cube.get_green_face[2])
+					when :right  then pick_color(:black)
+					when :front  then pick_color(@cube.get_red_face[0])
+					when :back   then pick_color(:black)
 				end
-			when position == :TMB then
-				case
-					when face == :top    then pick_color(@cube.get_white_face[1])
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(@cube.get_orange_face[1])
+			when :TMB
+				case face
+					when :top    then pick_color(@cube.get_white_face[1])
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(:black)
+					when :right  then pick_color(:black)
+					when :front  then pick_color(:black)
+					when :back   then pick_color(@cube.get_orange_face[1])
 				end
-			when position == :TMM then
-				case
-					when face == :top    then pick_color(@cube.get_white_face[4])
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(:black)
+			when :TMM
+				case face
+					when :top    then pick_color(@cube.get_white_face[4])
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(:black)
+					when :right  then pick_color(:black)
+					when :front  then pick_color(:black)
+					when :back   then pick_color(:black)
 				end
-			when position == :TMF then
-				case
-					when face == :top    then pick_color(@cube.get_white_face[7])
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(@cube.get_red_face[1])
-					when face == :back   then pick_color(:black)
+			when :TMF
+				case face
+					when :top    then pick_color(@cube.get_white_face[7])
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(:black)
+					when :right  then pick_color(:black)
+					when :front  then pick_color(@cube.get_red_face[1])
+					when :back   then pick_color(:black)
 				end
-			when position == :TRB then
-				case
-					when face == :top    then pick_color(@cube.get_white_face[2])
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(@cube.get_blue_face[2])
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(@cube.get_orange_face[0])
+			when :TRB
+				case face
+					when :top    then pick_color(@cube.get_white_face[2])
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(:black)
+					when :right  then pick_color(@cube.get_blue_face[2])
+					when :front  then pick_color(:black)
+					when :back   then pick_color(@cube.get_orange_face[0])
 				end
-			when position == :TRM then
-				case
-					when face == :top    then pick_color(@cube.get_white_face[5])
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(@cube.get_blue_face[1])
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(:black)
+			when :TRM
+				case face
+					when :top    then pick_color(@cube.get_white_face[5])
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(:black)
+					when :right  then pick_color(@cube.get_blue_face[1])
+					when :front  then pick_color(:black)
+					when :back   then pick_color(:black)
 				end
-			when position == :TRF then
-				case
-					when face == :top    then pick_color(@cube.get_white_face[8])
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(@cube.get_blue_face[0])
-					when face == :front  then pick_color(@cube.get_red_face[2])
-					when face == :back   then pick_color(:black)
+			when :TRF
+				case face
+					when :top    then pick_color(@cube.get_white_face[8])
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(:black)
+					when :right  then pick_color(@cube.get_blue_face[0])
+					when :front  then pick_color(@cube.get_red_face[2])
+					when :back   then pick_color(:black)
 				end
 			# Middle Layer
-			when position == :MLB then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(@cube.get_green_face[3])
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(@cube.get_orange_face[5])
+			when :MLB
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(@cube.get_green_face[3])
+					when :right  then pick_color(:black)
+					when :front  then pick_color(:black)
+					when :back   then pick_color(@cube.get_orange_face[5])
 				end
-			when position == :MLM then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(@cube.get_green_face[4])
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(:black)
+			when :MLM
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(@cube.get_green_face[4])
+					when :right  then pick_color(:black)
+					when :front  then pick_color(:black)
+					when :back   then pick_color(:black)
 				end
-			when position == :MLF then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(@cube.get_green_face[5])
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(@cube.get_red_face[3])
-					when face == :back   then pick_color(:black)
+			when :MLF
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(@cube.get_green_face[5])
+					when :right  then pick_color(:black)
+					when :front  then pick_color(@cube.get_red_face[3])
+					when :back   then pick_color(:black)
 				end
-			when position == :MMB then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(@cube.get_orange_face[4])
+			when :MMB
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(:black)
+					when :right  then pick_color(:black)
+					when :front  then pick_color(:black)
+					when :back   then pick_color(@cube.get_orange_face[4])
 				end
-			when position == :MMM then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(:black)
+			when :MMM
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(:black)
+					when :right  then pick_color(:black)
+					when :front  then pick_color(:black)
+					when :back   then pick_color(:black)
 				end
-			when position == :MMF then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(@cube.get_red_face[4])
-					when face == :back   then pick_color(:black)
+			when :MMF
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(:black)
+					when :right  then pick_color(:black)
+					when :front  then pick_color(@cube.get_red_face[4])
+					when :back   then pick_color(:black)
 				end
-			when position == :MRB then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(@cube.get_blue_face[5])
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(@cube.get_orange_face[3])
+			when :MRB
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(:black)
+					when :right  then pick_color(@cube.get_blue_face[5])
+					when :front  then pick_color(:black)
+					when :back   then pick_color(@cube.get_orange_face[3])
 				end
-			when position == :MRM then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(@cube.get_blue_face[4])
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(:black)
+			when :MRM
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(:black)
+					when :right  then pick_color(@cube.get_blue_face[4])
+					when :front  then pick_color(:black)
+					when :back   then pick_color(:black)
 				end
-			when position == :MRF then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(:black)
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(@cube.get_blue_face[3])
-					when face == :front  then pick_color(@cube.get_red_face[5])
-					when face == :back   then pick_color(:black)
+			when :MRF
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(:black)
+					when :left   then pick_color(:black)
+					when :right  then pick_color(@cube.get_blue_face[3])
+					when :front  then pick_color(@cube.get_red_face[5])
+					when :back   then pick_color(:black)
 				end
 			# Bottom Layer
-			when position == :BLB then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(@cube.get_yellow_face[6])
-					when face == :left   then pick_color(@cube.get_green_face[6])
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(@cube.get_orange_face[8])
+			when :BLB
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(@cube.get_yellow_face[6])
+					when :left   then pick_color(@cube.get_green_face[6])
+					when :right  then pick_color(:black)
+					when :front  then pick_color(:black)
+					when :back   then pick_color(@cube.get_orange_face[8])
 				end
-			when position == :BLM then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(@cube.get_yellow_face[3])
-					when face == :left   then pick_color(@cube.get_green_face[7])
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(:black)
+			when :BLM
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(@cube.get_yellow_face[3])
+					when :left   then pick_color(@cube.get_green_face[7])
+					when :right  then pick_color(:black)
+					when :front  then pick_color(:black)
+					when :back   then pick_color(:black)
 				end
-			when position == :BLF then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(@cube.get_yellow_face[0])
-					when face == :left   then pick_color(@cube.get_green_face[8])
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(@cube.get_red_face[6])
-					when face == :back   then pick_color(:black)
+			when :BLF
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(@cube.get_yellow_face[0])
+					when :left   then pick_color(@cube.get_green_face[8])
+					when :right  then pick_color(:black)
+					when :front  then pick_color(@cube.get_red_face[6])
+					when :back   then pick_color(:black)
 				end
-			when position == :BMB then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(@cube.get_yellow_face[7])
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(@cube.get_orange_face[7])
+			when :BMB
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(@cube.get_yellow_face[7])
+					when :left   then pick_color(:black)
+					when :right  then pick_color(:black)
+					when :front  then pick_color(:black)
+					when :back   then pick_color(@cube.get_orange_face[7])
 				end
-			when position == :BMM then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(@cube.get_yellow_face[4])
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(:black)
+			when :BMM
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(@cube.get_yellow_face[4])
+					when :left   then pick_color(:black)
+					when :right  then pick_color(:black)
+					when :front  then pick_color(:black)
+					when :back   then pick_color(:black)
 				end
-			when position == :BMF then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(@cube.get_yellow_face[1])
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(:black)
-					when face == :front  then pick_color(@cube.get_red_face[7])
-					when face == :back   then pick_color(:black)
+			when :BMF
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(@cube.get_yellow_face[1])
+					when :left   then pick_color(:black)
+					when :right  then pick_color(:black)
+					when :front  then pick_color(@cube.get_red_face[7])
+					when :back   then pick_color(:black)
 				end
-			when position == :BRB then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(@cube.get_yellow_face[8])
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(@cube.get_blue_face[8])
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(@cube.get_orange_face[6])
+			when :BRB
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(@cube.get_yellow_face[8])
+					when :left   then pick_color(:black)
+					when :right  then pick_color(@cube.get_blue_face[8])
+					when :front  then pick_color(:black)
+					when :back   then pick_color(@cube.get_orange_face[6])
 				end
-			when position == :BRM then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(@cube.get_yellow_face[5])
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(@cube.get_blue_face[7])
-					when face == :front  then pick_color(:black)
-					when face == :back   then pick_color(:black)
+			when :BRM
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(@cube.get_yellow_face[5])
+					when :left   then pick_color(:black)
+					when :right  then pick_color(@cube.get_blue_face[7])
+					when :front  then pick_color(:black)
+					when :back   then pick_color(:black)
 				end
-			when position == :BRF then
-				case
-					when face == :top    then pick_color(:black)
-					when face == :bottom then pick_color(@cube.get_yellow_face[2])
-					when face == :left   then pick_color(:black)
-					when face == :right  then pick_color(@cube.get_blue_face[6])
-					when face == :front  then pick_color(@cube.get_red_face[8])
-					when face == :back   then pick_color(:black)
+			when :BRF
+				case face
+					when :top    then pick_color(:black)
+					when :bottom then pick_color(@cube.get_yellow_face[2])
+					when :left   then pick_color(:black)
+					when :right  then pick_color(@cube.get_blue_face[6])
+					when :front  then pick_color(@cube.get_red_face[8])
+					when :back   then pick_color(:black)
 				end
 		end
 	end
 
 	def pick_color(color)
-		case
-			when color == :white  then glColor3f(1.0, 1.0, 1.0)
-			when color == :red    then glColor3f(1.0, 0.0, 0.0)
-			when color == :green  then glColor3f(0.0, 1.0, 0.0)
-			when color == :blue   then glColor3f(0.0, 0.0, 1.0)
-			when color == :orange then glColor3f(1.0, 0.5, 0.0)
-			when color == :yellow then glColor3f(1.0, 1.0, 0.0)
+		case color
+			when :white  then glColor3f(1.0, 1.0, 1.0)
+			when :red    then glColor3f(1.0, 0.0, 0.0)
+			when :green  then glColor3f(0.0, 1.0, 0.0)
+			when :blue   then glColor3f(0.0, 0.0, 1.0)
+			when :orange then glColor3f(1.0, 0.5, 0.0)
+			when :yellow then glColor3f(1.0, 1.0, 0.0)
 			else glColor3f(0.0, 0.0, 0.0)
 		end
 	end
